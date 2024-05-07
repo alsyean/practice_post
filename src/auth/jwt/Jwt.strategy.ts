@@ -2,7 +2,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { Payload } from './jwt.payload';
-import { UsersRepository } from '../../users/users.repository';
+// import { UsersRepository } from '../../users/users.repository';
 import { UsersService } from "../../users/users.service";
 
 @Injectable()
@@ -20,7 +20,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       payload.sub,
     );
 
-    console.log(`current_user  : ${JSON.stringify(current_user)}`);
     if (current_user) {
       return current_user; // request.user
     } else {

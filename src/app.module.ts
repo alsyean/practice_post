@@ -3,12 +3,13 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
-import { UsersController } from './users/users.controller';
-import { UsersService } from './users/users.service';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { UserEntity } from './users/users.entity';
-
+import { PostModule } from './post/post.module';
+import { PostController } from './post/post.controller';
+import { PostService } from './post/post.service';
+import { PostEntity } from "./post/post.entity";
 
 @Module({
   imports: [
@@ -23,11 +24,12 @@ import { UserEntity } from './users/users.entity';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
-      entities: [UserEntity],
+      entities: [UserEntity, PostEntity],
       synchronize: true,
     }),
     UsersModule,
     AuthModule,
+    PostModule,
   ],
   controllers: [AppController],
   providers: [AppService],

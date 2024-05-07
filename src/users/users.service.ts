@@ -17,8 +17,6 @@ export class UsersService {
   async signUp(body: signupDto) {
     const { email, username, password, isAdmin} = body;
 
-    console.log(`email : ${email}`);
-
     const isEmailExists = await this.userRepository.findOne({
       where: { email },
     });
@@ -43,12 +41,11 @@ export class UsersService {
     return await this.userRepository.findOne({ where: { email } });
   }
 
-  async findByIdWithoutPassword(userId: string): Promise<UserDto | null> {
+  async findByIdWithoutPassword(userId: number): Promise<UserDto | null> {
     const user = await this.userRepository.findOne({
-      select: ['isAdmin', 'username', 'email'], // password 제외
+      select: ['id', 'isAdmin', 'username', 'email'], // password 제외
       where: { id: userId },
     });
-    console.log(`user  : ${JSON.stringify(user)}`);
     if (!user) {
       console.log('No user found with the given ID.');
       return null;

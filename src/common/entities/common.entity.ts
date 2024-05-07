@@ -8,9 +8,9 @@ import { IsUUID } from 'class-validator';
 import { Exclude } from 'class-transformer';
 
 export abstract class CommonEntity {
-  @IsUUID()
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+
+  @PrimaryGeneratedColumn('increment')
+  id: number;
 
   // 해당 열이 추가된 시각을 자동으로 기록
   // 만일 Postgres의 time zone이 'UTC'라면 UTC 기준으로 출력하고 'Asia/Seoul'라면 서울 기준으로 출력한다.
