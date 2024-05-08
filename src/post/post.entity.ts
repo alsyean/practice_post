@@ -1,15 +1,13 @@
-import { CommonEntity } from "../common/entities/common.entity";
-import { Column, Entity, Index, JoinColumn, JoinTable, ManyToOne } from "typeorm";
-import { IsBoolean, IsEmail, IsNotEmpty, IsString } from "class-validator";
-import { Exclude } from "class-transformer";
-import { UserEntity } from "../users/users.entity";
+import { CommonEntity } from '../common/entities/common.entity';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { IsBoolean, IsNotEmpty} from 'class-validator';
+import { UserEntity } from '../users/users.entity';
 
 @Entity({
   name: 'post',
 })
 export class PostEntity extends CommonEntity {
-
-  @IsNotEmpty({message: '제목을 입력해주세요.'})
+  @IsNotEmpty({ message: '제목을 입력해주세요.' })
   @Column({ type: 'varchar', unique: false, nullable: false })
   title: string;
 
