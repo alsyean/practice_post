@@ -59,7 +59,11 @@ export class PostService {
     // return post;
   }
 
-  async postBoard(board: PostBoardDto) {
+  async postBoard(board: PostBoardDto, files: Array<Express.Multer.File>) {
+    if (files && files.length > 0) {
+      // console.log(files);
+      return '';
+    }
     return this.postRepository.save(board);
   }
 

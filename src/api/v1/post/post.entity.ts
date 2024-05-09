@@ -1,6 +1,6 @@
 import { CommonEntity } from '../../../common/entities/common.entity';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
-import { IsBoolean, IsNotEmpty, IsString } from "class-validator";
+import { IsArray, IsBoolean, IsNotEmpty, IsOptional, IsString } from "class-validator";
 import { UserEntity } from '../users/users.entity';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -21,12 +21,15 @@ export class PostEntity extends CommonEntity {
   content: string;
 
   @ApiProperty()
-  @IsString()
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
   @Column({ type: 'varchar', nullable: true })
   images: string[];
 
   @ApiProperty()
   @IsBoolean()
+  @IsOptional()
   @Column({ type: 'boolean', default: false })
   isOpen: boolean;
 

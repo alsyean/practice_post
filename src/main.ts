@@ -6,8 +6,8 @@ import { ValidationPipe } from '@nestjs/common';
 import { SwaggerHelper } from './swagger/indext';
 import { PostModule } from './api/v1/post/post.module';
 import { UsersModule } from './api/v1/users/users.module';
-import { SwaggerModule } from "@nestjs/swagger";
-import { ResponseInterceptor } from "./common/interceptors/response.interceptor";
+import { SwaggerModule } from '@nestjs/swagger';
+import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 
 async function bootstrap() {
   dotenv.config({ path: `.env.${process.env.NODE_ENV}` });

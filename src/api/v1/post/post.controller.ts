@@ -7,7 +7,10 @@ import {
   Put,
   Query,
   UnauthorizedException,
+  UploadedFiles,
   UseGuards,
+  UseInterceptors,
+  UsePipes
 } from '@nestjs/common';
 import { PostService } from './post.service';
 import { PostBoardDto } from './dto/post.board.dto';
@@ -15,7 +18,9 @@ import { JwtAuthGuard } from '../../../auth/jwt/jwt.guard';
 import { User } from '../../../common/decorator/user.decorator';
 import { PaginationDto } from '../../../common/dto/pagination.dto';
 import { deletedBoardDto } from './dto/delete.board.dto';
-import { ApiConsumes, ApiExtraModels, ApiTags } from "@nestjs/swagger";
+import { ApiConsumes, ApiExtraModels, ApiTags } from '@nestjs/swagger';
+import { FilesInterceptor } from '@nestjs/platform-express';
+import { FileValidationPipe } from '../../../common/pipes/file.validation.pipe';
 
 @ApiTags('api/v1/post')
 @ApiExtraModels(PaginationDto)
@@ -31,9 +36,15 @@ export class PostController {
   @Post()
   @ApiConsumes('multipart/form-data')
   @UseGuards(JwtAuthGuard)
-  async postBoard(@Body() body: PostBoardDto, @User() user: any) {
+  @UsePipes(new FileValidationPipe())
+  @UseInterceptors(FilesInterceptor('images'))
+  async postBoard(
+    @UploadedFiles() files: Array<Express.Multer.File>,
+    @Body() body: PostBoardDto,
+    @User() user: any,
+  ) {
     body.user = user.id;
-    return await this.postService.postBoard(body);
+    return await this.postService.postBoard(body, files);
   }
 
   @Put()
