@@ -14,8 +14,11 @@ import { PostBoardDto } from './dto/post.board.dto';
 import { JwtAuthGuard } from '../auth/jwt/jwt.guard';
 import { User } from '../common/decorator/user.decorator';
 import { PaginationDto } from '../common/dto/pagination.dto';
-import { deletedBoardDto } from "./dto/delete.board.dto";
+import { deletedBoardDto } from './dto/delete.board.dto';
+import { ApiConsumes, ApiExtraModels, ApiHeader, ApiTags } from "@nestjs/swagger";
 
+@ApiTags('post')
+@ApiExtraModels(PaginationDto)
 @Controller('post')
 export class PostController {
   constructor(private readonly postService: PostService) {}
@@ -26,6 +29,7 @@ export class PostController {
   }
 
   @Post()
+  @ApiConsumes('multipart/form-data')
   @UseGuards(JwtAuthGuard)
   async postBoard(@Body() body: PostBoardDto, @User() user: any) {
     body.user = user.id;
@@ -33,6 +37,7 @@ export class PostController {
   }
 
   @Put()
+  @ApiConsumes('multipart/form-data')
   @UseGuards(JwtAuthGuard)
   async updatedBoard(@Body() body: PostBoardDto, @User() user: any) {
     if (!user?.id) {

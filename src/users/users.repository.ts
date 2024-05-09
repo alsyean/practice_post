@@ -1,10 +1,10 @@
 // import { EntityRepository, Repository } from 'typeorm';
 // import { UserEntity } from './users.entity';
-// import { signupDto } from './dto/singupDto';
+// import { SignupDto } from './dto/singupDto';
 //
 // @EntityRepository(UserEntity)
 // export class UsersRepository extends Repository<UserEntity> {
-//   async createUsers(users: signupDto) {
+//   async createUsers(users: SignupDto) {
 //     return this.save(users);
 //   }
 //   async findByEmail(email: string): Promise<UserEntity | undefined> {

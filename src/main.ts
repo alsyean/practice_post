@@ -7,6 +7,7 @@ import { SwaggerHelper } from './swagger/indext';
 import { PostModule } from './post/post.module';
 import { UsersModule } from './users/users.module';
 import { loadPackage } from '@nestjs/common/utils/load-package.util';
+import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 
 async function bootstrap() {
   dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
@@ -15,25 +16,17 @@ async function bootstrap() {
   const swaggerHelper = new SwaggerHelper();
   swaggerHelper.setApp(app);
 
-  const { document: PostV1Doc } = swaggerHelper.getBoardSwaggerDocument({
+  const postDocument = swaggerHelper.getBoardSwaggerDocument({
     include: [PostModule],
     deepScanRoutes: true,
   });
-  const { document: UserV1Doc } = swaggerHelper.getUserSwaggerDocument({
+  const userDocument = swaggerHelper.getUserSwaggerDocument({
     include: [UsersModule],
     deepScanRoutes: true,
   });
 
-  const swaggerUi = loadPackage('swagger-ui-express', 'SwaggerModule', () =>
-    require('swagger-ui-express'),
-  );
-  // app.use(swaggerHelper.getPostApi(), swaggerUi.serveFiles(PostV1Doc, {}));
-  app.use(
-    swaggerHelper.getPostApi(),
-    swaggerUi.serve,
-    swaggerUi.setup(PostV1Doc),
-  );
-  app.use(swaggerHelper.getUserApi(), swaggerUi.serveFiles(UserV1Doc, {}));
+  SwaggerModule.setup('api/posts/docs', app, postDocument);
+  SwaggerModule.setup('api/users/docs', app, userDocument);
 
   app.enableCors();
   app.useGlobalPipes(new ValidationPipe());

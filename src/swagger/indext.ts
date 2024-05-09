@@ -59,13 +59,13 @@ export class SwaggerHelper {
     return this.userApi;
   }
 
-  getBoardSwaggerHtml = (config?) => {
-    const { document, options } = this.getBoardSwaggerDocument(config);
-    const swaggerUi = loadPackage('swagger-ui-express', 'SwaggerModule', () => require('swagger-ui-express'));
-    const swaggerHtml = swaggerUi.generateHTML(document, options);
-
-    return swaggerHtml;
-  };
+  // getBoardSwaggerHtml = (config?) => {
+  //   const { document, options } = this.getBoardSwaggerDocument(config);
+  //   const swaggerUi = loadPackage('swagger-ui-express', 'SwaggerModule', () => require('swagger-ui-express'));
+  //   const swaggerHtml = swaggerUi.generateHTML(document, options);
+  //
+  //   return swaggerHtml;
+  // };
   getBoardSwaggerDocument = (config?) => {
     const options = new DocumentBuilder()
       .setTitle(SWAGGER_BOARD_API_NAME)
@@ -76,16 +76,16 @@ export class SwaggerHelper {
 
     const document = SwaggerModule.createDocument(this.app, options, config);
     // fs.writeFileSync('./provider-swagger-spec.json', JSON.stringify(document));
-    return { options, document };
+    return document;
   };
 
-  getUserSwaggerHtml = (config?) => {
-    const { document, options } = this.getUserSwaggerDocument(config);
-    const swaggerUi = loadPackage('swagger-ui-express', 'SwaggerModule', () => require('swagger-ui-express'));
-    const swaggerHtml = swaggerUi.generateHTML(document, options);
-
-    return swaggerHtml;
-  };
+  // getUserSwaggerHtml = (config?) => {
+  //   const { document, options } = this.getUserSwaggerDocument(config);
+  //   const swaggerUi = loadPackage('swagger-ui-express', 'SwaggerModule', () => require('swagger-ui-express'));
+  //   const swaggerHtml = swaggerUi.generateHTML(document, options);
+  //
+  //   return swaggerHtml;
+  // };
   getUserSwaggerDocument = (config?) => {
     const options = new DocumentBuilder()
       .setTitle(SWAGGER_USER_API_NAME)
@@ -96,6 +96,6 @@ export class SwaggerHelper {
 
     const document = SwaggerModule.createDocument(this.app, options, config);
     // fs.writeFileSync('./provider-swagger-spec.json', JSON.stringify(document));
-    return { options, document };
+    return document;
   };
 }

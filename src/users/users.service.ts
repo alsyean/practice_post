@@ -1,11 +1,10 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { signupDto } from './dto/singupDto';
+import { SignupDto } from './dto/singupDto';
 import * as bcrypt from 'bcrypt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from './users.entity';
 import { Repository } from 'typeorm';
 import { UserDto } from './dto/login.dto';
-import { plainToClass, plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class UsersService {
@@ -14,7 +13,7 @@ export class UsersService {
     private userRepository: Repository<UserEntity>,
   ) {}
 
-  async signUp(body: signupDto) {
+  async signUp(body: SignupDto) {
     const { email, username, password, isAdmin} = body;
 
     const isEmailExists = await this.userRepository.findOne({
