@@ -11,15 +11,15 @@ import {
 } from '@nestjs/common';
 import { PostService } from './post.service';
 import { PostBoardDto } from './dto/post.board.dto';
-import { JwtAuthGuard } from '../auth/jwt/jwt.guard';
-import { User } from '../common/decorator/user.decorator';
-import { PaginationDto } from '../common/dto/pagination.dto';
+import { JwtAuthGuard } from '../../../auth/jwt/jwt.guard';
+import { User } from '../../../common/decorator/user.decorator';
+import { PaginationDto } from '../../../common/dto/pagination.dto';
 import { deletedBoardDto } from './dto/delete.board.dto';
-import { ApiConsumes, ApiExtraModels, ApiHeader, ApiTags } from "@nestjs/swagger";
+import { ApiConsumes, ApiExtraModels, ApiTags } from "@nestjs/swagger";
 
-@ApiTags('post')
+@ApiTags('api/v1/post')
 @ApiExtraModels(PaginationDto)
-@Controller('post')
+@Controller('api/v1/post')
 export class PostController {
   constructor(private readonly postService: PostService) {}
 

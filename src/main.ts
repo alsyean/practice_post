@@ -4,10 +4,10 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import * as dotenv from 'dotenv';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerHelper } from './swagger/indext';
-import { PostModule } from './post/post.module';
-import { UsersModule } from './users/users.module';
-import { loadPackage } from '@nestjs/common/utils/load-package.util';
-import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
+import { PostModule } from './api/v1/post/post.module';
+import { UsersModule } from './api/v1/users/users.module';
+import { SwaggerModule } from "@nestjs/swagger";
+import { ResponseInterceptor } from "./common/interceptors/response.interceptor";
 
 async function bootstrap() {
   dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
@@ -30,6 +30,7 @@ async function bootstrap() {
 
   app.enableCors();
   app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalInterceptors(new ResponseInterceptor());
 
   await app.listen(process.env.PORT);
 }

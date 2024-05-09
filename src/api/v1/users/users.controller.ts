@@ -1,10 +1,10 @@
 import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
-import { AuthService } from '../auth/auth.service';
+import { AuthService } from '../../../auth/auth.service';
 import { SignupDto } from './dto/singupDto';
 import { UsersService } from './users.service';
-import { JwtAuthGuard } from '../auth/jwt/jwt.guard';
-import { LoginRequestDto } from '../auth/dto/LoginRequestDto';
-import { User } from '../common/decorator/user.decorator';
+import { JwtAuthGuard } from '../../../auth/jwt/jwt.guard';
+import { LoginRequestDto } from '../../../auth/dto/LoginRequestDto';
+import { User } from '../../../common/decorator/user.decorator';
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
@@ -13,8 +13,8 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
-@ApiTags('user')
-@Controller('users')
+@ApiTags('api/v1/user')
+@Controller('api/v1/users')
 export class UsersController {
   constructor(
     private readonly authService: AuthService,

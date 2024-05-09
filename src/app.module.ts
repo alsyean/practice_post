@@ -1,13 +1,12 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
-import { UsersModule } from './users/users.module';
+import { UsersModule } from './api/v1/users/users.module';
 import { AuthModule } from './auth/auth.module';
-import { PostModule } from './post/post.module';
-import { UserEntity } from "./users/users.entity";
-import { PostEntity } from "./post/post.entity";
+import { PostModule } from './api/v1/post/post.module';
+import { RequestLoggerMiddleware } from './common/middlewares/logger.middleware';
 
 @Module({
   imports: [
@@ -22,7 +21,7 @@ import { PostEntity } from "./post/post.entity";
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
-      entities: [UserEntity, PostEntity],
+      entities: [__dirname + '/**/**.entity{.ts,.js}'],
       synchronize: true,
     }),
     UsersModule,
@@ -32,4 +31,8 @@ import { PostEntity } from "./post/post.entity";
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer): any {
+    consumer.apply(RequestLoggerMiddleware).forRoutes('*');
+  }
+}

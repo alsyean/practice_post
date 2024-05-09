@@ -1,6 +1,6 @@
-import { CommonEntity } from '../common/entities/common.entity';
+import { CommonEntity } from '../../../common/entities/common.entity';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
-import { IsBoolean, IsNotEmpty} from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsString } from "class-validator";
 import { UserEntity } from '../users/users.entity';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -8,17 +8,20 @@ import { ApiProperty } from '@nestjs/swagger';
   name: 'post',
 })
 export class PostEntity extends CommonEntity {
+  @IsString()
   @ApiProperty()
   @IsNotEmpty({ message: '제목을 입력해주세요.' })
   @Column({ type: 'varchar', unique: false, nullable: false })
   title: string;
 
   @ApiProperty()
+  @IsString()
   @IsNotEmpty({ message: '내용을 입력해주세요.' })
   @Column({ type: 'varchar', unique: false, nullable: false })
   content: string;
 
   @ApiProperty()
+  @IsString()
   @Column({ type: 'varchar', nullable: true })
   images: string[];
 
