@@ -3,7 +3,7 @@ import { CommonEntity } from '../../../common/entities/common.entity'; // ormcon
 import { Column, Entity, Index, OneToMany } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { PostEntity } from '../post/post.entity';
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty } from '@nestjs/swagger';
 
 @Index('email', ['email'], { unique: true })
 @Entity({

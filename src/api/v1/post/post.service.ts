@@ -5,8 +5,6 @@ import { PostEntity } from './post.entity';
 import { PostBoardDto } from './dto/post.board.dto';
 import { UserDto } from '../users/dto/login.dto';
 import { PaginationDto } from '../../../common/dto/pagination.dto';
-import { deletedBoardDto } from "./dto/delete.board.dto";
-
 
 @Injectable()
 export class PostService {
@@ -16,7 +14,7 @@ export class PostService {
   ) {}
 
   async getAllBoard(paginationDto: PaginationDto) {
-    const { limit, page } = paginationDto;
+    const { limit, page, sort} = paginationDto;
     const offset = (page - 1) * limit;
     // QueryBuilder를 사용하여 쿼리 생성
     const queryBuilder = this.postRepository.createQueryBuilder('post');
@@ -32,7 +30,7 @@ export class PostService {
         'post.images',
         'post.isOpen',
       ]) // post에서 title과 content만 선택
-      .orderBy('post.id', 'DESC') // ID 기준 내림차순 정렬
+      .orderBy('post.id', sort) // ID 기준 내림차순 정렬
       .take(limit)
       .skip(offset);
 
