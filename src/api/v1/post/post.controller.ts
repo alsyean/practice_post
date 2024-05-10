@@ -6,6 +6,7 @@ import {
   Post,
   Put,
   Query,
+  Req,
   UnauthorizedException,
   UploadedFiles,
   UseGuards,
@@ -22,6 +23,9 @@ import { deletedBoardDto } from './dto/delete.board.dto';
 import { ApiConsumes, ApiExtraModels, ApiTags } from '@nestjs/swagger';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { FileValidationPipe } from '../../../common/pipes/file.validation.pipe';
+import { multerOptions } from '../../../common/utils/multer.options';
+import { Request } from 'express';
+import * as process from 'process';
 
 @ApiTags('api/v1/post')
 @ApiExtraModels(PaginationDto)
@@ -41,24 +45,41 @@ export class PostController {
   @ApiConsumes('multipart/form-data')
   @UseGuards(JwtAuthGuard)
   @UsePipes(new FileValidationPipe())
-  @UseInterceptors(FilesInterceptor('images'))
+  @UseInterceptors(FilesInterceptor('images', 1000, multerOptions('post')))
   async postBoard(
+    @Req() req: Request,
     @UploadedFiles() files: Array<Express.Multer.File>,
     @Body() body: PostBoardDto,
     @User() user: any,
   ) {
+    const imageBaseUrl = `${req.protocol}://${req.hostname}:${process.env.PORT}`;
     body.user = user.id;
-    return await this.postService.postBoard(body, files);
+    return await this.postService.postBoard(body, files, imageBaseUrl);
   }
 
   @Put()
   @ApiConsumes('multipart/form-data')
   @UseGuards(JwtAuthGuard)
-  async updatedBoard(@Body() body: PostBoardDto, @User() user: any) {
+  @UsePipes(new FileValidationPipe())
+  @UseInterceptors(FilesInterceptor('images', 1000, multerOptions('post')))
+  async updatedBoard(
+    @Req() req: Request,
+    @UploadedFiles() files: Array<Express.Multer.File>,
+    @Body() body: PostBoardDto,
+    @User() user: any,
+  ) {
     if (!user?.id) {
       throw new UnauthorizedException();
     }
-    return await this.postService.updatedBoard(user.id, body);
+    const imageBaseUrl = `${req.protocol}://${req.hostname}:${process.env.PORT}`;
+    console.log(`body : ${JSON.stringify(body, null,2)}` )
+    console.log(`user : ${JSON.stringify(user, null,2)}` )
+    return await this.postService.updatedBoard(
+      user.id,
+      body,
+      files,
+      imageBaseUrl,
+    );
   }
 
   @Delete()

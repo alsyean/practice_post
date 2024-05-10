@@ -45,17 +45,50 @@ export class PostService {
     };
   }
 
-  async updatedBoard(userId: UserDto, board: PostBoardDto) {
-    const post = await this.postRepository.findOne({
-      where: {
-        user: userId,
-        id: board.id,
-      },
-    });
+  async updatedBoard(
+    userId: UserDto,
+    board: PostBoardDto,
+    files: Array<Express.Multer.File>,
+    imageBaseUrl: string,
+  ) {
+
+    const queryBuilder = this.postRepository.createQueryBuilder('post');
+    queryBuilder
+      .leftJoinAndSelect('post.user', 'user')
+      .select([
+        'post.id',
+        'post.title',
+        'post.content',
+        'post.createdAt',
+        'post.images',
+        'post.isOpen',
+      ]) // post에서 title과 content만 선택
+      .addSelect(['user.username', 'user.email', 'user.id', 'user.isAdmin']) // user에서 username과 email만 선택
+      .where('user.id = :userId', { userId })
+      .andWhere('post.id = :postId', { postId: board.id });
+
+    const post = await queryBuilder.getOne();
+    // const post = await this.postRepository.findOne({
+    //   where: {
+    //     user: userId,
+    //     id: board.id,
+    //   },
+    //   relations: ['user'],
+    // });
+
+    console.log(`post : ${JSON.stringify(post, null,2)}`)
 
     post.title = board.title;
     post.content = board.content;
     post.isOpen = board.isOpen;
+    if (files && files.length > 0) {
+      const filePath = [];
+      // console.log(files);
+      files.forEach((v) => {
+        filePath.push(imageBaseUrl + '/static/post/' + v.filename);
+      });
+      board.images = filePath;
+    }
     post.images = board.images;
     await this.postRepository.save(post);
     return post;
@@ -75,10 +108,19 @@ export class PostService {
     // return post;
   }
 
-  async postBoard(board: PostBoardDto, files: Array<Express.Multer.File>) {
+  async postBoard(
+    board: PostBoardDto,
+    files: Array<Express.Multer.File>,
+    imageBaseUrl: string,
+  ) {
     if (files && files.length > 0) {
-      // console.log(files);
-      return '';
+      const filePath = [];
+      files.forEach((v) => {
+        filePath.push(imageBaseUrl + '/static/post/' + v.filename);
+      });
+      board.images = filePath;
+      // return '';
+      return this.postRepository.save(board);
     }
     return this.postRepository.save(board);
   }

@@ -6,13 +6,18 @@ import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './api/v1/users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { PostModule } from './api/v1/post/post.module';
-import { RequestLoggerMiddleware } from './common/middlewares/logger.middleware';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import * as path from 'path';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       envFilePath: `.env.${process.env.NODE_ENV}`,
       isGlobal: true, // 이 옵션을 설정하면 모듈을 전역적으로 사용할 수 있습니다.
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: path.join(__dirname, 'common', 'uploads'),
+      serveRoot: '/static',
     }),
     TypeOrmModule.forRoot({
       type: 'mysql',

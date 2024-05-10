@@ -7,7 +7,7 @@ import {
 
 @Injectable()
 export class FileValidationPipe implements PipeTransform {
-  private readonly maxvalueize = 1000000; // 최대 파일 크기 (예: 1MB)
+  private readonly maxValueSize = 1024 * 1024 * 5; // 최대 파일 크기 (예: 5MB)
   private readonly allowedMimeTypes = [
     'image/jpeg',
     'image/png',
@@ -15,13 +15,13 @@ export class FileValidationPipe implements PipeTransform {
   ]; // 허용 MIME 타입
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  transform(value: any, metadata: ArgumentMetadata,) {
+  transform(value: any, metadata: ArgumentMetadata) {
     // "value" is an object containing the value's attributes and metadata
     if (Array.isArray(value)) {
       value.forEach((v) => {
-        if (v.size > this.maxvalueize) {
+        if (v.size > this.maxValueSize) {
           throw new BadRequestException(
-            `허용된 최대 파일 크기는 ${this.maxvalueize}바이트입니다.`,
+            `허용된 최대 파일 크기는 ${this.maxValueSize}바이트입니다.`,
           );
         }
         if (
@@ -35,9 +35,9 @@ export class FileValidationPipe implements PipeTransform {
       });
     } else {
       // 단일 파일 처리
-      if (value.size > this.maxvalueize) {
+      if (value.size > this.maxValueSize) {
         throw new BadRequestException(
-          `허용된 최대 파일 크기는 ${this.maxvalueize}바이트입니다.`,
+          `허용된 최대 파일 크기는 ${this.maxValueSize}바이트입니다.`,
         );
       }
       if (

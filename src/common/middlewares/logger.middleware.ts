@@ -10,12 +10,16 @@ export class RequestLoggerMiddleware implements NestMiddleware {
     const query = req.query;
     const body = req.body;
     const url = tempUrl;
+    const originalUrl = req.originalUrl;
+    const hostname = req.hostname;
     this.logger.log(
       {
         headers,
         query,
         body,
         url,
+        hostname,
+        originalUrl,
       },
       `[${RequestLoggerMiddleware.name}]`,
     );

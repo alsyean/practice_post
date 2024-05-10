@@ -24,7 +24,7 @@ export class PostEntity extends CommonEntity {
   @IsArray()
   @IsString({ each: true })
   @IsOptional()
-  @Column({ type: 'varchar', nullable: true })
+  @Column({ type: 'json', nullable: true })
   images: string[];
 
   @ApiProperty()
@@ -32,7 +32,6 @@ export class PostEntity extends CommonEntity {
   @IsOptional()
   @Column({ type: 'boolean', default: false })
   isOpen: boolean;
-
 
   @ManyToOne(() => UserEntity, (user) => user.post_id)
   @JoinColumn({ name: 'user_id' }) // user_id는 데이터베이스에 실제로 존재하는 외래 키 컬럼이어야 함

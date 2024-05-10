@@ -8,6 +8,7 @@ import { PostModule } from './api/v1/post/post.module';
 import { UsersModule } from './api/v1/users/users.module';
 import { SwaggerModule } from '@nestjs/swagger';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
+import * as path from 'path';
 
 async function bootstrap() {
   dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
@@ -28,6 +29,9 @@ async function bootstrap() {
   SwaggerModule.setup('api/posts/docs', app, postDocument);
   SwaggerModule.setup('api/users/docs', app, userDocument);
 
+  app.useStaticAssets(path.join(__dirname, './common', 'uploads'), {
+    prefix: '/static',
+  });
   app.enableCors();
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalInterceptors(new ResponseInterceptor());
