@@ -16,17 +16,35 @@ export class PostService {
   ) {}
 
   async getAllBoard(paginationDto: PaginationDto) {
-    const { limit, skip } = paginationDto;
-    return await this.postRepository.find({
-      where: {
-        isOpen: true,
-      },
-      take: limit,
-      skip: skip,
-      order: {
-        id: 'DESC', // 예시로 ID 기준 오름차순 정렬
-      },
-    });
+    const { limit, page } = paginationDto;
+    const offset = (page - 1) * limit;
+    // QueryBuilder를 사용하여 쿼리 생성
+    const queryBuilder = this.postRepository.createQueryBuilder('post');
+
+    // 조인 및 필요한 필드 선택
+    queryBuilder
+      .leftJoinAndSelect('post.user', 'user')
+      .select([
+        'post.id',
+        'post.title',
+        'post.content',
+        'post.createdAt',
+        'post.images',
+        'post.isOpen',
+      ]) // post에서 title과 content만 선택
+      .orderBy('post.id', 'DESC') // ID 기준 내림차순 정렬
+      .take(limit)
+      .skip(offset);
+
+    const [posts, count] = await queryBuilder.getManyAndCount();
+
+    return {
+      page: page,
+      total: count,
+      count: posts.length,
+      pageCount: Math.ceil(count / limit),
+      data: posts,
+    };
   }
 
   async updatedBoard(userId: UserDto, board: PostBoardDto) {
@@ -68,16 +86,37 @@ export class PostService {
   }
 
   async getMyBoardById(userId: UserDto, paginationDto: PaginationDto) {
-    const { limit, skip } = paginationDto;
-    return this.postRepository.find({
-      where: {
-        user: userId,
-      },
-      take: limit,
-      skip: skip,
-      order: {
-        id: 'DESC', // 예시로 ID 기준 오름차순 정렬
-      },
-    });
+    const { limit, page } = paginationDto;
+
+    const offset = (page - 1) * limit;
+    // QueryBuilder를 사용하여 쿼리 생성
+    const queryBuilder = this.postRepository.createQueryBuilder('post');
+
+    // 조인 및 필요한 필드 선택
+    queryBuilder
+      .leftJoinAndSelect('post.user', 'user')
+      .select([
+        'post.id',
+        'post.title',
+        'post.content',
+        'post.createdAt',
+        'post.images',
+        'post.isOpen',
+      ]) // post에서 title과 content만 선택
+      .addSelect(['user.username', 'user.email', 'user.id', 'user.isAdmin']) // user에서 username과 email만 선택
+      .where('user.id = :userId', { userId })
+      .orderBy('post.id', 'DESC') // ID 기준 내림차순 정렬
+      .take(limit)
+      .skip(offset);
+
+    const [posts, count] = await queryBuilder.getManyAndCount();
+
+    return {
+      page: page,
+      total: count,
+      count: posts.length,
+      pageCount: Math.ceil(count / limit),
+      data: posts,
+    };
   }
 }

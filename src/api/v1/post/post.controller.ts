@@ -10,7 +10,7 @@ import {
   UploadedFiles,
   UseGuards,
   UseInterceptors,
-  UsePipes
+  UsePipes,
 } from '@nestjs/common';
 import { PostService } from './post.service';
 import { PostBoardDto } from './dto/post.board.dto';
@@ -30,6 +30,13 @@ export class PostController {
 
   @Get()
   async getAllBoard(@Query() paginationDto: PaginationDto) {
+    const { limit, page } = paginationDto;
+    if (!page) {
+      paginationDto.page = 1;
+    }
+    if (!limit) {
+      paginationDto.limit = 10;
+    }
     return await this.postService.getAllBoard(paginationDto);
   }
 
@@ -69,6 +76,13 @@ export class PostController {
   @Get('/my')
   @UseGuards(JwtAuthGuard)
   async getMyBoard(@User() user: any, @Query() paginationDto: PaginationDto) {
+    const { limit, page } = paginationDto;
+    if (!page) {
+      paginationDto.page = 1;
+    }
+    if (!limit) {
+      paginationDto.limit = 10;
+    }
     return await this.postService.getMyBoardById(user.id, paginationDto);
   }
 }
