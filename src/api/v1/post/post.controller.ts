@@ -10,7 +10,8 @@ import {
   UploadedFiles,
   UseGuards,
   UseInterceptors,
-  UsePipes, ValidationPipe
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { PostService } from './post.service';
 import { PostBoardDto } from './dto/post.board.dto';
@@ -29,7 +30,10 @@ export class PostController {
   constructor(private readonly postService: PostService) {}
 
   @Get()
-  async getAllBoard(@Query(new ValidationPipe({ transform: true })) paginationDto: PaginationDto) {
+  async getAllBoard(
+    @Query(new ValidationPipe({ transform: true }))
+    paginationDto: PaginationDto,
+  ) {
     return await this.postService.getAllBoard(paginationDto);
   }
 
@@ -68,8 +72,11 @@ export class PostController {
 
   @Get('/my')
   @UseGuards(JwtAuthGuard)
-  async getMyBoard(@User() user: any, @Query() paginationDto: PaginationDto) {
-
+  async getMyBoard(
+    @Query(new ValidationPipe({ transform: true }))
+    paginationDto: PaginationDto,
+    @User() user: any,
+  ) {
     return await this.postService.getMyBoardById(user.id, paginationDto);
   }
 }
