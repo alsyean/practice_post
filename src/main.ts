@@ -9,6 +9,7 @@ import { UsersModule } from './api/v1/users/users.module';
 import { SwaggerModule } from '@nestjs/swagger';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 import * as path from 'path';
+import { HttpExceptionFilter } from './common/exceptions/http-Exception.filter';
 
 async function bootstrap() {
   dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
@@ -33,6 +34,7 @@ async function bootstrap() {
     prefix: '/static',
   });
   app.enableCors();
+  app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalInterceptors(new ResponseInterceptor());
 
