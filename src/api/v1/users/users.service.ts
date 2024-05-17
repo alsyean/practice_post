@@ -14,7 +14,7 @@ export class UsersService {
   ) {}
 
   async signUp(body: SignupDto) {
-    const { email, username, password, isAdmin} = body;
+    const { email, password } = body;
 
     const isEmailExists = await this.userRepository.findOne({
       where: { email },

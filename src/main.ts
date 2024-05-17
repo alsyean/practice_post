@@ -71,7 +71,9 @@ class Application {
 
   startLog() {
     if (this.DEV_MODE) {
-      this.logger.log(`✅ Server on http://localhost:${this.PORT}`);
+      this.logger.log(
+        `✅ Server on http://localhost:${this.PORT} && env : ${process.env.NODE_ENV}`,
+      );
     } else {
       this.logger.log(`✅ Server on port ${this.PORT}...`);
     }

@@ -1,6 +1,12 @@
 import { CommonEntity } from '../../../common/entities/common.entity';
-import { Column, Entity, JoinColumn, JoinTable, ManyToOne } from "typeorm";
-import { IsArray, IsBoolean, IsNotEmpty, IsOptional, IsString } from "class-validator";
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import {
+  IsArray,
+  IsBoolean,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import { UserEntity } from '../users/users.entity';
 import { ApiProperty } from '@nestjs/swagger';
 

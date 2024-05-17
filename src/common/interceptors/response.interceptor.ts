@@ -16,10 +16,7 @@ import {
 export class ResponseInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const request = context.switchToHttp().getRequest();
-    if (
-      request.route.path === LOGIN_URL &&
-      request.method === POST_METHOD
-    ) {
+    if (request.route.path === LOGIN_URL && request.method === POST_METHOD) {
       return next.handle(); // 인터셉터 작동을 스킵
     }
 

@@ -1,7 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
-import { loadPackage } from '@nestjs/common/utils/load-package.util';
 import {
   SWAGGER_BOARD_API_NAME,
   SWAGGER_BOARD_API_CURRENT_VERSION,
@@ -9,7 +8,6 @@ import {
   SWAGGER_USER_API_DESCRIPTION,
   SWAGGER_USER_API_CURRENT_VERSION,
   SWAGGER_USER_API_NAME,
-
 } from './constants';
 
 export class SwaggerHelper {

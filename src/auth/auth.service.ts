@@ -28,10 +28,8 @@ export class AuthService {
 
     const payload = { email: email, sub: users.id };
 
-
     return {
       token: this.jwtService.sign(payload, { secret: process.env.JWT_SECRET }),
     };
   }
-
 }

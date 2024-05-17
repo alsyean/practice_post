@@ -14,7 +14,7 @@ export class PostService {
   ) {}
 
   async getAllBoard(paginationDto: PaginationDto) {
-    const { limit, page, sort} = paginationDto;
+    const { limit, page, sort } = paginationDto;
     const offset = (page - 1) * limit;
     // QueryBuilder를 사용하여 쿼리 생성
     const queryBuilder = this.postRepository.createQueryBuilder('post');
@@ -51,7 +51,6 @@ export class PostService {
     files: Array<Express.Multer.File>,
     imageBaseUrl: string,
   ) {
-
     const queryBuilder = this.postRepository.createQueryBuilder('post');
     queryBuilder
       .leftJoinAndSelect('post.user', 'user')
@@ -76,7 +75,7 @@ export class PostService {
     //   relations: ['user'],
     // });
 
-    console.log(`post : ${JSON.stringify(post, null,2)}`)
+    console.log(`post : ${JSON.stringify(post, null, 2)}`);
 
     post.title = board.title;
     post.content = board.content;

@@ -72,8 +72,8 @@ export class PostController {
       throw new UnauthorizedException();
     }
     const imageBaseUrl = `${req.protocol}://${req.hostname}:${process.env.PORT}`;
-    console.log(`body : ${JSON.stringify(body, null,2)}` )
-    console.log(`user : ${JSON.stringify(user, null,2)}` )
+    console.log(`body : ${JSON.stringify(body, null, 2)}`);
+    console.log(`user : ${JSON.stringify(user, null, 2)}`);
     return await this.postService.updatedBoard(
       user.id,
       body,
