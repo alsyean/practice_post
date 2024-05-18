@@ -5,14 +5,25 @@ import { PostEntity } from './post.entity';
 import { PostBoardDto } from './dto/post.board.dto';
 import { UserDto } from '../users/dto/login.dto';
 import { PaginationDto } from '../../../common/dto/pagination.dto';
+import { S3Service } from '../../../common/aws/s3.service';
+import { User } from '../../../common/decorator/user.decorator';
 
 @Injectable()
 export class PostService {
   constructor(
     @InjectRepository(PostEntity)
     private postRepository: Repository<PostEntity>,
+    private readonly s3Service: S3Service,
   ) {}
 
+  private async getS3Urls(posts: PostEntity[]) {
+    for (const post of posts) {
+      if (post.images) {
+        const imageUrls = await this.s3Service.getFileUrls(post.images);
+        post.images = imageUrls;
+      }
+    }
+  }
   async getAllBoard(paginationDto: PaginationDto) {
     const { limit, page, sort } = paginationDto;
     const offset = (page - 1) * limit;
@@ -36,6 +47,8 @@ export class PostService {
 
     const [posts, count] = await queryBuilder.getManyAndCount();
 
+    await this.getS3Urls(posts);
+
     return {
       page: page,
       total: count,
@@ -46,10 +59,9 @@ export class PostService {
   }
 
   async updatedBoard(
-    userId: UserDto,
+    @User() user,
     board: PostBoardDto,
     files: Array<Express.Multer.File>,
-    imageBaseUrl: string,
   ) {
     const queryBuilder = this.postRepository.createQueryBuilder('post');
     queryBuilder
@@ -63,7 +75,7 @@ export class PostService {
         'post.isOpen',
       ]) // post에서 title과 content만 선택
       .addSelect(['user.username', 'user.email', 'user.id', 'user.isAdmin']) // user에서 username과 email만 선택
-      .where('user.id = :userId', { userId })
+      .where('user.id = :userId', { userId: user.id })
       .andWhere('post.id = :postId', { postId: board.id });
 
     const post = await queryBuilder.getOne();
@@ -75,19 +87,28 @@ export class PostService {
     //   relations: ['user'],
     // });
 
-    console.log(`post : ${JSON.stringify(post, null, 2)}`);
-
     post.title = board.title;
     post.content = board.content;
     post.isOpen = board.isOpen;
+    // disk storage
+    // if (files && files.length > 0) {
+    //   const filePath = [];
+    //   // console.log(files);
+    //   files.forEach((v) => {
+    //     filePath.push(imageBaseUrl + '/static/post/' + v.filename);
+    //   });
+    //   board.images = filePath;
+    // }
+    // s3 upload
     if (files && files.length > 0) {
-      const filePath = [];
-      // console.log(files);
-      files.forEach((v) => {
-        filePath.push(imageBaseUrl + '/static/post/' + v.filename);
-      });
+      const filePath = await this.s3Service.uploadMultipleFiles(
+        files,
+        user.email,
+        board.title,
+      );
       board.images = filePath;
     }
+
     post.images = board.images;
     await this.postRepository.save(post);
     return post;
@@ -108,17 +129,17 @@ export class PostService {
   }
 
   async postBoard(
+    @User() user,
     board: PostBoardDto,
     files: Array<Express.Multer.File>,
-    imageBaseUrl: string,
   ) {
     if (files && files.length > 0) {
-      const filePath = [];
-      files.forEach((v) => {
-        filePath.push(imageBaseUrl + '/static/post/' + v.filename);
-      });
+      const filePath = await this.s3Service.uploadMultipleFiles(
+        files,
+        user.email,
+        board.title,
+      );
       board.images = filePath;
-      // return '';
       return this.postRepository.save(board);
     }
     return this.postRepository.save(board);
@@ -149,6 +170,8 @@ export class PostService {
       .skip(offset);
 
     const [posts, count] = await queryBuilder.getManyAndCount();
+
+    await this.getS3Urls(posts);
 
     return {
       page: page,

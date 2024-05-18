@@ -1,52 +1,98 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import * as AWS from 'aws-sdk';
+import { v4 as uuidv4 } from 'uuid';
+import { AppConfigService } from '../config/config.service';
+import { InjectAwsService } from 'nest-aws-sdk';
+import { S3 } from 'aws-sdk';
 
 @Injectable()
 export class S3Service {
-  private readonly s3: AWS.S3;
-  private readonly bucketName: string;
   private readonly logger = new Logger(S3Service.name);
 
-  constructor(private configService: ConfigService) {
-    this.s3 = new AWS.S3({
-      accessKeyId: this.configService.get<string>('AWS_ACCESS_KEY_ID'),
-      secretAccessKey: this.configService.get<string>('AWS_SECRET_ACCESS_KEY'),
-      region: this.configService.get<string>('AWS_REGION'),
-    });
-    this.bucketName = this.configService.get<string>('AWS_S3_BUCKET_NAME');
-  }
+  // nes-aws-sdk를 사용 할 경우
+  constructor(@InjectAwsService(S3) private readonly s3: S3) {}
+  // nes-aws-sdk를 사용 안 할 경우
+  // constructor(private appConfigService: AppConfigService) {}
 
-  async uploadFile(fileName: string, fileContent: Buffer): Promise<string> {
+  async uploadFile(
+    file: Express.Multer.File,
+    email?: string,
+    title?: string,
+  ): Promise<string> {
+    let key = `${process.env.NODE_ENV}/post/`;
+    if (email !== undefined) {
+      key += `${email}/`;
+    }
+    if (title !== undefined) {
+      key += `${title}/`;
+    }
+    key += `${uuidv4()}-${file.originalname}`;
     const params = {
-      Bucket: this.bucketName,
-      Key: fileName,
-      Body: fileContent,
+      // nes-aws-sdk를 사용 안 할 경우
+      // Bucket: this.appConfigService.awsS3BucketName,
+      Bucket: process.env.AWS_S3_BUCKET_NAME,
+      Key: key,
+      Body: file.buffer,
+      ContentType: file.mimetype,
     };
+    console.log(`key  : ${key}`)
 
     try {
+      // nes-aws-sdk를 사용 할 경우
       const data = await this.s3.upload(params).promise();
+      // nes-aws-sdk를 사용 안 할 경우
+      // const data = await this.appConfigService.awsS3.upload(params).promise();
       this.logger.log(`File uploaded successfully. ${data.Location}`);
-      return data.Location;
+      this.logger.log(`File uploaded successfully. Key: ${key}`);
+      return key; // 키 반환
+      // return data.Location;
     } catch (error) {
       this.logger.error(`File upload failed. ${error.message}`);
       throw new Error(`File upload failed. ${error.message}`);
     }
   }
 
-  async downloadFile(fileName: string): Promise<Buffer> {
+  async uploadMultipleFiles(
+    files: Express.Multer.File[],
+    email?: string,
+    title?: string,
+  ): Promise<string[]> {
+    const uploadPromises = files.map((file) =>
+      this.uploadFile(file, email, title),
+    );
+    return Promise.all(uploadPromises);
+  }
+
+  async getFileUrl(key: string): Promise<string> {
     const params = {
-      Bucket: this.bucketName,
-      Key: fileName,
+      // nes-aws-sdk를 사용 안 할 경우
+      // Bucket: this.appConfigService.awsS3BucketName,
+      Bucket: process.env.AWS_S3_BUCKET_NAME,
+      Key: key,
+      Expires: 300, // URL expires in 300 seconds
     };
 
     try {
-      const data = await this.s3.getObject(params).promise();
-      this.logger.log(`File downloaded successfully.`);
-      return data.Body as Buffer;
+      // nes-aws-sdk를 사용 할 경우
+      const url = await this.s3.getSignedUrlPromise(
+        'getObject',
+        params,
+      );
+      // nes-aws-sdk를 사용 안 할 경우
+      // const url = await this.appConfigService.awsS3.getSignedUrlPromise(
+      //   'getObject',
+      //   params,
+      // );
+      this.logger.log(`Generated URL: ${url}`);
+      return url;
     } catch (error) {
-      this.logger.error(`File download failed. ${error.message}`);
-      throw new Error(`File download failed. ${error.message}`);
+      this.logger.error(`Failed to generate URL. ${error.message}`);
+      throw new Error(`Failed to generate URL. ${error.message}`);
     }
+  }
+
+  async getFileUrls(keys: string[]): Promise<string[]> {
+    const urlPromises = keys.map((key) => this.getFileUrl(key));
+    console.log(`urlPromises : ${JSON.stringify(urlPromises, null ,2)}`)
+    return Promise.all(urlPromises);
   }
 }

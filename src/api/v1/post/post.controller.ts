@@ -45,25 +45,22 @@ export class PostController {
   @ApiConsumes('multipart/form-data')
   @UseGuards(JwtAuthGuard)
   @UsePipes(new FileValidationPipe())
-  @UseInterceptors(FilesInterceptor('images', 1000, multerOptions('post')))
+  @UseInterceptors(FilesInterceptor('images'))
   async postBoard(
-    @Req() req: Request,
     @UploadedFiles() files: Array<Express.Multer.File>,
     @Body() body: PostBoardDto,
     @User() user: any,
   ) {
-    const imageBaseUrl = `${req.protocol}://${req.hostname}:${process.env.PORT}`;
     body.user = user.id;
-    return await this.postService.postBoard(body, files, imageBaseUrl);
+    return await this.postService.postBoard(user, body, files);
   }
 
   @Put()
   @ApiConsumes('multipart/form-data')
   @UseGuards(JwtAuthGuard)
   @UsePipes(new FileValidationPipe())
-  @UseInterceptors(FilesInterceptor('images', 1000, multerOptions('post')))
+  @UseInterceptors(FilesInterceptor('images'))
   async updatedBoard(
-    @Req() req: Request,
     @UploadedFiles() files: Array<Express.Multer.File>,
     @Body() body: PostBoardDto,
     @User() user: any,
@@ -71,15 +68,7 @@ export class PostController {
     if (!user?.id) {
       throw new UnauthorizedException();
     }
-    const imageBaseUrl = `${req.protocol}://${req.hostname}:${process.env.PORT}`;
-    console.log(`body : ${JSON.stringify(body, null, 2)}`);
-    console.log(`user : ${JSON.stringify(user, null, 2)}`);
-    return await this.postService.updatedBoard(
-      user.id,
-      body,
-      files,
-      imageBaseUrl,
-    );
+    return await this.postService.updatedBoard(user, body, files);
   }
 
   @Delete()

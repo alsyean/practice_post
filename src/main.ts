@@ -60,7 +60,7 @@ class Application {
       prefix: '/static',
     });
     this.server.useGlobalPipes(new ValidationPipe());
-    this.server.useGlobalInterceptors(new ResponseInterceptor());
+    // this.server.useGlobalInterceptors(new ResponseInterceptor());
     this.server.useGlobalFilters(new HttpExceptionFilter());
   }
 
