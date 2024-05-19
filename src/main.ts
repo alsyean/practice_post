@@ -86,27 +86,26 @@ class Application {
 
 async function loadEnvFile() {
   const envKey = `${process.env.NODE_ENV}/.env.${process.env.NODE_ENV}`; // S3에 저장된 .env 파일의 경로
-  // if (process.env.NODE_ENV === 'production') {
-  const s3 = new AWS.S3();
+  if (process.env.NODE_ENV === 'production') {
+    const s3 = new AWS.S3();
 
-  const bucketName = process.env.AWS_S3_BUCKET_NAME;
-  const params = {
-    Bucket: bucketName,
-    Key: envKey,
-  };
+    const bucketName = process.env.AWS_S3_BUCKET_NAME;
+    const params = {
+      Bucket: bucketName,
+      Key: envKey,
+    };
 
-  try {
-    const data = await s3.getObject(params).promise();
-    fs.writeFileSync('.env', data.Body.toString());
-    dotenv.config({ path: '.env' });
-  } catch (error) {
-    new Logger('init').error('Error downloading .env file from S3:', error);
-    throw error;
+    try {
+      const data = await s3.getObject(params).promise();
+      fs.writeFileSync('.env', data.Body.toString());
+      dotenv.config({ path: '.env' });
+    } catch (error) {
+      new Logger('init').error('Error downloading .env file from S3:', error);
+      throw error;
+    }
+  } else {
+    dotenv.config({ path: envKey });
   }
-  // }
-  // else {
-  //   dotenv.config({ path: envKey });
-  // }
 }
 
 async function init(): Promise<void> {

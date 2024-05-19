@@ -32,6 +32,6 @@ import { SnsService } from './sns/sns.service';
   ],
   // AppConfigService는 nest-aws-sdk를 사용 안 하고 aws-sdk만 사용 할 경우
   providers: [S3Service, AppConfigService, SqsService, SnsService],
-  exports: [S3Service, SnsService],
+  exports: [S3Service, SnsService, SqsService],
 })
 export class AwsModule {}

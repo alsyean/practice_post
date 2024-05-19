@@ -12,6 +12,8 @@ import { RequestLoggerMiddleware } from './common/middlewares/logger.middleware'
 import { S3Service } from './common/aws/s3/s3.service';
 import { AwsModule } from './common/aws/aws.module';
 import { AppConfigModule } from './common/config/config.module';
+import { EmailService } from './common/email/email.service';
+import { EmailModule } from './common/email/email.module';
 
 @Module({
   imports: [
@@ -38,9 +40,10 @@ import { AppConfigModule } from './common/config/config.module';
     PostModule,
     AwsModule,
     AppConfigModule,
+    EmailModule,
   ],
   controllers: [AppController],
-  providers: [AppService, S3Service],
+  providers: [AppService, S3Service, EmailService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): any {

@@ -8,8 +8,9 @@ import { JwtService } from '@nestjs/jwt';
 // import { UsersRepository } from '../users/users.repository';
 import * as bcrypt from 'bcrypt';
 import { LoginRequestDto } from './dto/LoginRequestDto';
-import { SnsService } from '../common/aws/sns/sns.service';
 import { UsersService } from '../api/v1/users/users.service';
+import { EmailService } from '../common/email/email.service';
+import { S3Service } from '../common/aws/s3/s3.service';
 
 @Injectable()
 export class AuthService {
@@ -17,7 +18,8 @@ export class AuthService {
     @Inject(forwardRef(() => UsersService))
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
-    private readonly snsService: SnsService,
+    private readonly emailService: EmailService,
+    private readonly s3Service: S3Service,
   ) {}
 
   private verificationCodes: Map<string, { code: string; expires: number }> =
@@ -58,8 +60,13 @@ export class AuthService {
       name,
       code,
     };
+    const template = await this.s3Service.loadTemplateFromS3();
 
-    await this.snsService.sendEmail(replacements, email);
+    await this.emailService.sendVerificationEmail(
+      email,
+      template,
+      replacements,
+    );
     console.log(`Verification code sent to ${email}: ${code}`);
   }
 
