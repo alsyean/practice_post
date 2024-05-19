@@ -5,7 +5,7 @@ import { PostEntity } from './post.entity';
 import { PostBoardDto } from './dto/post.board.dto';
 import { UserDto } from '../users/dto/login.dto';
 import { PaginationDto } from '../../../common/dto/pagination.dto';
-import { S3Service } from '../../../common/aws/s3.service';
+import { S3Service } from '../../../common/aws/s3/s3.service';
 import { User } from '../../../common/decorator/user.decorator';
 
 @Injectable()

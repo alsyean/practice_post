@@ -1,9 +1,12 @@
 import { Module } from '@nestjs/common';
-import { S3Service } from './s3.service';
+import { S3Service } from './s3/s3.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppConfigService } from '../config/config.service';
 import { AwsSdkModule } from 'nest-aws-sdk';
-import { S3 } from 'aws-sdk';
+import { S3, SQS, SNS } from 'aws-sdk';
+import { SqsService } from './sqs/sqs.service';
+import { SnsService } from './sns/sns.service';
+
 @Module({
   imports: [
     ConfigModule,
@@ -24,11 +27,11 @@ import { S3 } from 'aws-sdk';
         imports: [ConfigModule],
         inject: [ConfigService],
       },
-      services: [S3],
+      services: [S3, SQS, SNS],
     }),
   ],
   // AppConfigService는 nest-aws-sdk를 사용 안 하고 aws-sdk만 사용 할 경우
-  providers: [S3Service, AppConfigService],
-  exports: [S3Service],
+  providers: [S3Service, AppConfigService, SqsService, SnsService],
+  exports: [S3Service, SnsService],
 })
 export class AwsModule {}

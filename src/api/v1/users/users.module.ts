@@ -4,11 +4,13 @@ import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
 import { AuthModule } from '../../../auth/auth.module';
 import { UserEntity } from './users.entity';
+import { AwsModule } from '../../../common/aws/aws.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([UserEntity]),
-    forwardRef(() => AuthModule),
+    forwardRef(() => AuthModule), // 순환 종속성 해결을 위해 forwardRef 사용
+    AwsModule,
   ],
   controllers: [UsersController],
   providers: [UsersService],

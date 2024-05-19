@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
-import { AppConfigService } from '../config/config.service';
+import { AppConfigService } from '../../config/config.service';
 import { InjectAwsService } from 'nest-aws-sdk';
 import { S3 } from 'aws-sdk';
 
@@ -12,6 +12,7 @@ export class S3Service {
   constructor(@InjectAwsService(S3) private readonly s3: S3) {}
   // nes-aws-sdk를 사용 안 할 경우
   // constructor(private appConfigService: AppConfigService) {}
+  private bucket_name: string = process.env.AWS_S3_BUCKET_NAME;
 
   async uploadFile(
     file: Express.Multer.File,
@@ -29,12 +30,11 @@ export class S3Service {
     const params = {
       // nes-aws-sdk를 사용 안 할 경우
       // Bucket: this.appConfigService.awsS3BucketName,
-      Bucket: process.env.AWS_S3_BUCKET_NAME,
+      Bucket: this.bucket_name,
       Key: key,
       Body: file.buffer,
       ContentType: file.mimetype,
     };
-    console.log(`key  : ${key}`)
 
     try {
       // nes-aws-sdk를 사용 할 경우
@@ -66,7 +66,7 @@ export class S3Service {
     const params = {
       // nes-aws-sdk를 사용 안 할 경우
       // Bucket: this.appConfigService.awsS3BucketName,
-      Bucket: process.env.AWS_S3_BUCKET_NAME,
+      Bucket: this.bucket_name,
       Key: key,
       Expires: 300, // URL expires in 300 seconds
     };
@@ -94,5 +94,26 @@ export class S3Service {
     const urlPromises = keys.map((key) => this.getFileUrl(key));
     console.log(`urlPromises : ${JSON.stringify(urlPromises, null ,2)}`)
     return Promise.all(urlPromises);
+  }
+
+  async loadTemplateFromS3(): Promise<{
+    subject: string;
+    body: string;
+  }> {
+    const params = {
+      Bucket: this.bucket_name,
+      Key: `${process.env.NODE_ENV}/email-template.json`,
+    };
+
+    try {
+      const data = await this.s3.getObject(params).promise();
+      const template = data.Body.toString('utf-8');
+      return JSON.parse(template);
+    } catch (error) {
+      console.error(`Failed to load template from S3. Error: ${error.message}`);
+      throw new Error(
+        `Failed to load template from S3. Error: ${error.message}`,
+      );
+    }
   }
 }

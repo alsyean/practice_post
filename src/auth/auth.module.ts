@@ -4,6 +4,7 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './jwt/jwt.strategy';
 import { UsersModule } from '../api/v1/users/users.module';
+import { AwsModule } from '../common/aws/aws.module';
 
 @Module({
   imports: [
@@ -12,9 +13,9 @@ import { UsersModule } from '../api/v1/users/users.module';
       secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '1y' },
     }),
-    forwardRef(() => UsersModule),
+    forwardRef(() => UsersModule), // 순환 종속성 해결을 위해 forwardRef 사용
+    AwsModule,
   ],
-  controllers: [],
   providers: [AuthService, JwtStrategy],
   exports: [AuthService],
 })

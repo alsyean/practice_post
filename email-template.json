@@ -1,0 +1,4 @@
+{
+  "subject": "Your verification code",
+  "body": "Hello {{name}},\n\nYour verification code is {{code}}. It will expire in 3 minutes.\n\nThank you!"
+}

@@ -9,7 +9,7 @@ import { PostModule } from './api/v1/post/post.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import * as path from 'path';
 import { RequestLoggerMiddleware } from './common/middlewares/logger.middleware';
-import { S3Service } from './common/aws/s3.service';
+import { S3Service } from './common/aws/s3/s3.service';
 import { AwsModule } from './common/aws/aws.module';
 import { AppConfigModule } from './common/config/config.module';
 
