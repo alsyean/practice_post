@@ -1,5 +1,5 @@
 // user.dto.ts
-import { UserEntity } from '../users.entity';
+import { UserEntity } from '../../../../entities/users.entity';
 
 export class UserDto {
   id: number;

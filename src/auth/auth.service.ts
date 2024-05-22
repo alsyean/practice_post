@@ -11,12 +11,18 @@ import { LoginRequestDto } from './dto/LoginRequestDto';
 import { UsersService } from '../api/v1/users/users.service';
 import { EmailService } from '../common/email/email.service';
 import { S3Service } from '../common/aws/s3/s3.service';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { VerificationEntity } from '../entities/verification.entity';
+import { UserEntity } from '../entities/users.entity';
 
 @Injectable()
 export class AuthService {
   constructor(
     @Inject(forwardRef(() => UsersService))
     private readonly usersService: UsersService,
+    @InjectRepository(VerificationEntity)
+    private verificationRepository: Repository<VerificationEntity>,
     private readonly jwtService: JwtService,
     private readonly emailService: EmailService,
     private readonly s3Service: S3Service,
@@ -27,32 +33,58 @@ export class AuthService {
 
   async jwtLogin(data: LoginRequestDto) {
     const { email, password } = data;
-    const users = await this.usersService.findByEmail(email);
+    const users = await this.findUsersInfo(email);
 
     if (!users) {
       throw new UnauthorizedException('이메일과 비밀번호를 확인 해주세요.');
     }
 
-    const isValidPassword = await bcrypt.compare(password, users.password);
+    if (users.user.wrong_login_cnt >= 5) {
+      throw new UnauthorizedException(
+        '로그인 실패 5번 이상 비밀번호 재설정 요망',
+      );
+    }
+
+    const isValidPassword = await bcrypt.compare(password, users.user.password);
 
     if (!isValidPassword) {
+      users.user.wrong_login_cnt += 1;
+      await this.usersService.updateUser(users.user);
       throw new UnauthorizedException('비밀번호가 일치 하지 않습니다.');
     }
 
-    const payload = { email: email, sub: users.id };
+    const payload = { email: email, sub: users.user.id };
 
     return {
       token: this.jwtService.sign(payload, { secret: process.env.JWT_SECRET }),
     };
   }
 
+  async findUsersInfo(email: string) {
+    const queryBuilder = this.verificationRepository.createQueryBuilder('v');
+
+    queryBuilder
+      .leftJoinAndSelect('v.user', 'u')
+      .select(['v.isUse', 'v.expire_date', 'v.code']) // user에서 username과 email만 선택
+      .addSelect(['u.id', 'u.email', 'u.password', 'u.wrong_login_cnt'])
+      .where('u.email = :email', { email })
+      .orderBy('v.id', 'DESC');
+
+    return await queryBuilder.getOne();
+  }
+
   generateVerificationCode(): string {
     return Math.floor(100000 + Math.random() * 900000).toString(); // 6자리 숫자 코드 생성
   }
 
-  async sendVerificationCode(email: string, name: string): Promise<void> {
+  async sendVerificationCode(
+    email: string,
+    name: string,
+    user?: UserEntity,
+  ): Promise<void> {
     const code = this.generateVerificationCode();
     const expires = Date.now() + 3 * 60 * 1000; // 3분 후 만료
+    const expirationDate = new Date(expires);
 
     this.verificationCodes.set(email, { code, expires });
 
@@ -67,21 +99,35 @@ export class AuthService {
       template,
       replacements,
     );
-    console.log(`Verification code sent to ${email}: ${code}`);
+
+    const verification = new VerificationEntity();
+    verification.code = code;
+    verification.expire_date = expirationDate;
+    verification.user = user;
+    await this.verificationRepository.save(verification);
   }
 
-  validateVerificationCode(email: string, code: string): boolean {
-    const entry = this.verificationCodes.get(email);
+  async validateVerificationCode(
+    email: string,
+    code: string,
+  ): Promise<boolean> {
+    let isBoolean = false;
 
-    if (!entry) {
-      return false;
+    const entry = await this.findUsersInfo(email);
+
+    if (!entry || entry.expire_date.getTime() < Date.now()) {
+      return isBoolean;
     }
 
-    if (entry.expires < Date.now()) {
-      this.verificationCodes.delete(email); // 만료된 코드 제거
-      return false;
+    if (entry.code === code) {
+      entry.isUse = true;
+      await this.verificationRepository.update(
+        { user: entry.user },
+        { ...entry },
+      );
+      isBoolean = true;
     }
 
-    return entry.code === code;
+    return isBoolean;
   }
 }

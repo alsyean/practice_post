@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { PostEntity } from './post.entity';
+import { PostEntity } from '../../../entities/post.entity';
 import { PostBoardDto } from './dto/post.board.dto';
 import { UserDto } from '../users/dto/login.dto';
 import { PaginationDto } from '../../../common/dto/pagination.dto';

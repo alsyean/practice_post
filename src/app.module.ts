@@ -33,7 +33,7 @@ import { EmailModule } from './common/email/email.module';
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
       entities: [__dirname + '/**/**.entity{.ts,.js}'],
-      synchronize: true,
+      synchronize: process.env.NODE_ENV === 'development' ? true : false,
     }),
     UsersModule,
     AuthModule,

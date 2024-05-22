@@ -1,9 +1,10 @@
 import { IsBoolean, IsEmail, IsNotEmpty, IsString } from 'class-validator';
-import { CommonEntity } from '../../../common/entities/common.entity'; // ormconfig.json에서 파싱 가능하도록 상대 경로로 지정
+import { CommonEntity } from '../common/entities/common.entity'; // ormconfig.json에서 파싱 가능하도록 상대 경로로 지정
 import { Column, Entity, Index, OneToMany } from 'typeorm';
 import { Exclude } from 'class-transformer';
-import { PostEntity } from '../post/post.entity';
+import { PostEntity } from './post.entity';
 import { ApiProperty } from '@nestjs/swagger';
+import { VerificationEntity } from './verification.entity';
 
 @Index('email', ['email'], { unique: true })
 @Entity({
@@ -28,11 +29,18 @@ export class UserEntity extends CommonEntity {
   password: string;
 
   @ApiProperty()
+  @Column({ type: 'int', nullable: false, default: 0 })
+  wrong_login_cnt: number;
+
+  @ApiProperty()
   @IsBoolean()
   @Column({ type: 'boolean', default: false })
   isAdmin: boolean;
 
   @ApiProperty()
   @OneToMany(() => PostEntity, (post) => post.user)
-  post_id: PostEntity;
+  posts: PostEntity[];
+
+  @OneToMany(() => VerificationEntity, (verification) => verification.user)
+  verifications: VerificationEntity[];
 }

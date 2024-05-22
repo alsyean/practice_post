@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { AuthService } from '../../../auth/auth.service';
 import { SignupDto } from './dto/singupDto';
 import { UsersService } from './users.service';
@@ -40,6 +40,27 @@ export class UsersController {
   @ApiResponse({ status: 200, description: 'success login' })
   logIn(@Body() body: LoginRequestDto) {
     const user = this.authService.jwtLogin(body);
+    return user;
+  }
+
+  @Post('verify')
+  @ApiResponse({ status: 200, description: 'success verify' })
+  verify(@Body() body: any) {
+    const user = this.authService.validateVerificationCode(
+      body.email,
+      body.code,
+    );
+    return user;
+  }
+
+  @Post('verify/mail')
+  @ApiResponse({ status: 200, description: 'success login' })
+  sendVerifyMail(@Body() body: any) {
+    const user = this.authService.sendVerificationCode(
+      body.email,
+      body.name,
+      body.user,
+    );
     return user;
   }
 }

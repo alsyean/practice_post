@@ -5,10 +5,13 @@ import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './jwt/jwt.strategy';
 import { UsersModule } from '../api/v1/users/users.module';
 import { AwsModule } from '../common/aws/aws.module';
-import { EmailModule } from "../common/email/email.module";
+import { EmailModule } from '../common/email/email.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { VerificationEntity } from '../entities/verification.entity';
 
 @Module({
   imports: [
+    TypeOrmModule.forFeature([VerificationEntity]),
     PassportModule.register({ defaultStrategy: 'jwt', session: false }),
     JwtModule.register({
       secret: process.env.JWT_SECRET,
