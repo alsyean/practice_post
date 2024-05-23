@@ -6,6 +6,7 @@ import { UserEntity } from '../../../entities/users.entity';
 import { Repository } from 'typeorm';
 import { UserDto } from './dto/login.dto';
 import { AuthService } from '../../../auth/auth.service';
+import { SqsService } from '../../../common/aws/sqs/sqs.service';
 
 @Injectable()
 export class UsersService {
@@ -13,6 +14,7 @@ export class UsersService {
     @InjectRepository(UserEntity)
     private userRepository: Repository<UserEntity>,
     private authService: AuthService,
+    private readonly sqsService: SqsService,
   ) {}
 
   async signUp(body: SignupDto) {
@@ -27,11 +29,6 @@ export class UsersService {
     body.password = await bcrypt.hash(password, 10);
     const users = this.userRepository.create(body);
     const user = await this.userRepository.save(users);
-    await this.authService.sendVerificationCode(
-      body.email,
-      body.username,
-      user,
-    );
 
     return users;
   }
@@ -56,5 +53,9 @@ export class UsersService {
     const result = new UserDto(user);
     // 조회 결과가 있는 경우, UserDto를 반환
     return result;
+  }
+
+  async verifySend(email: string, name: string, user?: UserEntity) {
+    return await this.authService.sendVerificationCode(email, name, user);
   }
 }

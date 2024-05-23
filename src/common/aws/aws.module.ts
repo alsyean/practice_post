@@ -6,6 +6,7 @@ import { AwsSdkModule } from 'nest-aws-sdk';
 import { S3, SQS, SNS } from 'aws-sdk';
 import { SqsService } from './sqs/sqs.service';
 import { SnsService } from './sns/sns.service';
+import { SqsConsumerService } from './sqs/sqs-consumer.service';
 
 @Module({
   imports: [
@@ -31,7 +32,13 @@ import { SnsService } from './sns/sns.service';
     }),
   ],
   // AppConfigService는 nest-aws-sdk를 사용 안 하고 aws-sdk만 사용 할 경우
-  providers: [S3Service, AppConfigService, SqsService, SnsService],
+  providers: [
+    S3Service,
+    AppConfigService,
+    SqsService,
+    SnsService,
+    SqsConsumerService,
+  ],
   exports: [S3Service, SnsService, SqsService],
 })
 export class AwsModule {}

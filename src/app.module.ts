@@ -14,6 +14,8 @@ import { AwsModule } from './common/aws/aws.module';
 import { AppConfigModule } from './common/config/config.module';
 import { EmailService } from './common/email/email.service';
 import { EmailModule } from './common/email/email.module';
+import { BatchService } from './api/batch/batch.service';
+import { BatchModule } from './api/batch/batch.module';
 
 @Module({
   imports: [
@@ -41,9 +43,10 @@ import { EmailModule } from './common/email/email.module';
     AwsModule,
     AppConfigModule,
     EmailModule,
+    BatchModule,
   ],
   controllers: [AppController],
-  providers: [AppService, S3Service, EmailService],
+  providers: [AppService, S3Service, EmailService, BatchService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): any {

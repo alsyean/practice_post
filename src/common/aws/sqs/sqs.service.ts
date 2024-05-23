@@ -1,30 +1,38 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from "@nestjs/common";
 import { InjectAwsService } from 'nest-aws-sdk';
 import { SQS } from 'aws-sdk';
-import { v4 as uuidv4 } from 'uuid'; // UUID 라이브러리 사용
+import { v4 as uuidv4 } from 'uuid';
+import { Message } from '@aws-sdk/client-sqs';
 
 @Injectable()
 export class SqsService {
-  constructor(@InjectAwsService(SQS) private readonly sqs: SQS) {}
+  public readonly queueUrl: string;
+  constructor(@InjectAwsService(SQS) readonly sqs: SQS) {
+    this.queueUrl = process.env.SQS_URL;
+  }
 
-  async sendMessage(messageBody: string): Promise<void> {
-    const queueUrl = process.env.SQS_URL;
+  private readonly logger = new Logger(SqsService.name);
+
+  async sendMessage(queueName, message: string) {
     const params = {
-      QueueUrl: queueUrl,
-      MessageBody: messageBody,
-      MessageGroupId: 'register_verification_code', // FIFO 큐의 메시지 그룹 ID
-      MessageDeduplicationId: new Date().toISOString() + uuidv4(), // 메시지 중복 제거를 위한 ID
+      QueueUrl: queueName,
+      MessageBody: message,
     };
 
     try {
-      await this.sqs.sendMessage(params).promise();
-      console.log(`Message sent successfully to ${queueUrl}`);
+      this.logger.verbose(
+        { queueName, params },
+        `[batch,queue,${SqsService.name},sendMessage]`,
+      );
+      const res = await this.sqs.sendMessage(params).promise();
+      this.logger.log(`Message sent successfully to ${queueName}`);
+      return res;
     } catch (error) {
-      console.error(
-        `Failed to send message to ${queueUrl}. Error: ${error.message}`,
+      this.logger.error(
+        `Failed to send message to ${queueName}. Error: ${error.message}`,
       );
       throw new Error(
-        `Failed to send message to ${queueUrl}. Error: ${error.message}`,
+        `Failed to send message to ${queueName}. Error: ${error.message}`,
       );
     }
   }

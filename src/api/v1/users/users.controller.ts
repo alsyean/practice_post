@@ -45,22 +45,13 @@ export class UsersController {
 
   @Post('verify')
   @ApiResponse({ status: 200, description: 'success verify' })
-  verify(@Body() body: any) {
-    const user = this.authService.validateVerificationCode(
-      body.email,
-      body.code,
-    );
-    return user;
+  async verify(@Body() body: any) {
+    return await this.usersService.verifySend(body.email, body.code);
   }
 
   @Post('verify/mail')
-  @ApiResponse({ status: 200, description: 'success login' })
-  sendVerifyMail(@Body() body: any) {
-    const user = this.authService.sendVerificationCode(
-      body.email,
-      body.name,
-      body.user,
-    );
-    return user;
+  @ApiResponse({ status: 200, description: 're-send verify mail' })
+  async sendVerifyMail(@Body() body: any) {
+    return await this.usersService.verifySend(body.email, body.code, body.user);
   }
 }

@@ -81,12 +81,10 @@ export class AuthService {
     email: string,
     name: string,
     user?: UserEntity,
-  ): Promise<void> {
+  ): Promise<VerificationEntity> {
     const code = this.generateVerificationCode();
     const expires = Date.now() + 3 * 60 * 1000; // 3분 후 만료
     const expirationDate = new Date(expires);
-
-    this.verificationCodes.set(email, { code, expires });
 
     const replacements = {
       name,
@@ -105,6 +103,8 @@ export class AuthService {
     verification.expire_date = expirationDate;
     verification.user = user;
     await this.verificationRepository.save(verification);
+
+    return verification;
   }
 
   async validateVerificationCode(
