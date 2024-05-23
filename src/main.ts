@@ -7,7 +7,6 @@ import { SwaggerHelper } from './swagger/indext';
 import { PostModule } from './api/v1/post/post.module';
 import { UsersModule } from './api/v1/users/users.module';
 import { SwaggerModule } from '@nestjs/swagger';
-import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 import * as path from 'path';
 import { HttpExceptionFilter } from './common/exceptions/http-Exception.filter';
 import * as AWS from 'aws-sdk';

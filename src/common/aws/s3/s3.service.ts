@@ -1,6 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
-import { AppConfigService } from '../../config/config.service';
 import { InjectAwsService } from 'nest-aws-sdk';
 import { S3 } from 'aws-sdk';
 
@@ -73,10 +72,7 @@ export class S3Service {
 
     try {
       // nes-aws-sdk를 사용 할 경우
-      const url = await this.s3.getSignedUrlPromise(
-        'getObject',
-        params,
-      );
+      const url = await this.s3.getSignedUrlPromise('getObject', params);
       // nes-aws-sdk를 사용 안 할 경우
       // const url = await this.appConfigService.awsS3.getSignedUrlPromise(
       //   'getObject',
@@ -92,7 +88,7 @@ export class S3Service {
 
   async getFileUrls(keys: string[]): Promise<string[]> {
     const urlPromises = keys.map((key) => this.getFileUrl(key));
-    console.log(`urlPromises : ${JSON.stringify(urlPromises, null ,2)}`)
+    console.log(`urlPromises : ${JSON.stringify(urlPromises, null, 2)}`);
     return Promise.all(urlPromises);
   }
 

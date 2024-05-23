@@ -25,7 +25,7 @@ export class SnsService {
     const subject = this.replacePlaceholders(template.subject, replacements);
     const body = this.replacePlaceholders(template.body, replacements);
 
-    console.log(`process.env.SNS_TOPIC_ARN  : ${process.env.SNS_TOPIC_ARN}`)
+    console.log(`process.env.SNS_TOPIC_ARN  : ${process.env.SNS_TOPIC_ARN}`);
 
     const params = {
       Subject: subject,

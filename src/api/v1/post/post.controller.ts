@@ -6,7 +6,6 @@ import {
   Post,
   Put,
   Query,
-  Req,
   UnauthorizedException,
   UploadedFiles,
   UseGuards,
@@ -23,9 +22,6 @@ import { deletedBoardDto } from './dto/delete.board.dto';
 import { ApiConsumes, ApiExtraModels, ApiTags } from '@nestjs/swagger';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { FileValidationPipe } from '../../../common/pipes/file.validation.pipe';
-import { multerOptions } from '../../../common/utils/multer.options';
-import { Request } from 'express';
-import * as process from 'process';
 
 @ApiTags('api/v1/post')
 @ApiExtraModels(PaginationDto)

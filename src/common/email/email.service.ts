@@ -1,10 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import * as nodemailer from 'nodemailer';
 import { AppConfigService } from '../config/config.service';
 
 @Injectable()
 export class EmailService {
-
   constructor(private readonly appConfigService: AppConfigService) {}
 
   protected replacePlaceholders(
