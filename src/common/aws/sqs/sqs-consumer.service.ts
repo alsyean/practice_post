@@ -16,9 +16,16 @@ export class SqsConsumerService {
 
   @SqsMessageHandler('batchJob', false)
   async batchMessage(message: AWS.SQS.Message) {
+    this.logger.verbose(`[${SqsConsumerService.name}] Batch Start`);
+    this.logger.verbose(
+      `[${SqsConsumerService.name}] Batch Body ${message.Body}`,
+    );
+
     try {
-      if (message.Body === 'batchJob') {
+      if (message.Body === 'batchUserPasswordExpired') {
         this.handleUserPasswordExpired();
+      } else {
+        this.logger.warn(`Unknown message body: ${message.Body}`);
       }
     } catch (e) {}
   }

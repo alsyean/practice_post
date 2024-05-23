@@ -1,4 +1,4 @@
-import { forwardRef, Module } from "@nestjs/common";
+import { forwardRef, Module } from '@nestjs/common';
 import { S3Service } from './s3/s3.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppConfigService } from '../config/config.service';
@@ -10,6 +10,7 @@ import { SqsConsumerService } from './sqs/sqs-consumer.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserEntity } from '../../entities/users.entity';
 import { UsersModule } from '../../api/v1/users/users.module';
+import { SqsModule } from '@ssut/nestjs-sqs';
 
 @Module({
   imports: [
@@ -32,8 +33,31 @@ import { UsersModule } from '../../api/v1/users/users.module';
         },
         imports: [ConfigModule],
         inject: [ConfigService],
+
       },
       services: [S3, SQS, SNS],
+    }),
+    SqsModule.registerAsync({
+      useFactory: (configService: ConfigService) => {
+        return {
+          consumers: [
+            {
+              name: 'batchJob',
+              queueUrl: configService.get('SQS_URL'),
+              region: configService.get('AWS_REGION'),
+            },
+          ],
+          producers: [
+            {
+              name: 'batchJob',
+              queueUrl: configService.get('SQS_URL'),
+              region: configService.get('AWS_REGION'),
+            },
+          ],
+        };
+      },
+      imports: [ConfigModule],
+      inject: [ConfigService],
     }),
   ],
   // AppConfigService는 nest-aws-sdk를 사용 안 하고 aws-sdk만 사용 할 경우

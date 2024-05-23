@@ -1,30 +1,21 @@
-import { Injectable, Logger } from "@nestjs/common";
-import { InjectAwsService } from 'nest-aws-sdk';
-import { SQS } from 'aws-sdk';
-import { v4 as uuidv4 } from 'uuid';
-import { Message } from '@aws-sdk/client-sqs';
+import { Injectable, Logger } from '@nestjs/common';
+import { SqsService as NestSqsService } from '@ssut/nestjs-sqs';
 
 @Injectable()
 export class SqsService {
-  public readonly queueUrl: string;
-  constructor(@InjectAwsService(SQS) readonly sqs: SQS) {
-    this.queueUrl = process.env.SQS_URL;
-  }
+  constructor(private readonly sqsService: NestSqsService) {}
 
   private readonly logger = new Logger(SqsService.name);
 
-  async sendMessage(queueName, message: string) {
-    const params = {
-      QueueUrl: queueName,
-      MessageBody: message,
-    };
+  async sendMessage(queueName, params: any) {
 
     try {
       this.logger.verbose(
         { queueName, params },
         `[batch,queue,${SqsService.name},sendMessage]`,
       );
-      const res = await this.sqs.sendMessage(params).promise();
+
+      const res = await this.sqsService.send(queueName, params);
       this.logger.log(`Message sent successfully to ${queueName}`);
       return res;
     } catch (error) {

@@ -103,7 +103,9 @@ async function loadEnvFile() {
       throw error;
     }
   } else {
-    dotenv.config({ path: envKey });
+    console.log(`@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@`);
+    console.log(`env Key : ${envKey.split('/')[1] }`);
+    dotenv.config({ path: envKey.split('/')[1] });
   }
 }
 
