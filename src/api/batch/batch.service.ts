@@ -9,7 +9,7 @@ export class BatchService {
   constructor(private readonly sqsService: SqsService) {}
   private readonly logger = new Logger(BatchService.name);
 
-  @Cron(CronExpression.EVERY_5_SECONDS, {
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT, {
     name: 'batchUserPasswordExpired',
   })
   async batchUserPasswordExpired() {
