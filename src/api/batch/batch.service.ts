@@ -12,7 +12,7 @@ export class BatchService {
   })
   async batchUserPasswordExpired() {
     const res = await this.sqsService.sendMessage(
-      'batchUserPasswordExpired',
+      'batchJob',
       '',
     );
     this.logger.verbose(

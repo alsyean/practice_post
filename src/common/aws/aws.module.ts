@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from "@nestjs/common";
 import { S3Service } from './s3/s3.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppConfigService } from '../config/config.service';
@@ -7,10 +7,15 @@ import { S3, SQS, SNS } from 'aws-sdk';
 import { SqsService } from './sqs/sqs.service';
 import { SnsService } from './sns/sns.service';
 import { SqsConsumerService } from './sqs/sqs-consumer.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { UserEntity } from '../../entities/users.entity';
+import { UsersModule } from '../../api/v1/users/users.module';
 
 @Module({
   imports: [
     ConfigModule,
+    TypeOrmModule.forFeature([UserEntity]),
+    forwardRef(() => UsersModule), // 순환 종속성 해결을 위해 forwardRef 사용
     AwsSdkModule.forRootAsync({
       defaultServiceOptions: {
         useFactory: (configService: ConfigService) => {
