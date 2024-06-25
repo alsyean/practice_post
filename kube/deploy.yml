@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: post
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: post
+  template:
+    metadata:
+      labels:
+        app: post
+    spec:
+      containers:
+        - name: post
+          image: my-post:latest  # 여기서 "my-app:latest"는 빌드된 Docker 이미지 이름입니다.
+          ports:
+            - containerPort: 80
+          env:
+            - name: ENVIRONMENT
+              value: "development"
