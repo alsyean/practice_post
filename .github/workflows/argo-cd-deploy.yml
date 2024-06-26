@@ -27,7 +27,7 @@ jobs:
 
       - name: Login to Argo CD
         env:
-          ARGOCD_SERVER: localhost
+          ARGOCD_SERVER: ${{ secrets.ARGOCD_URL }}
           ARGOCD_USERNAME: ${{ secrets.ARGOCD_USERNAME }}
           ARGOCD_PASSWORD: ${{ secrets.ARGOCD_PASSWORD }}
         run: |
@@ -35,7 +35,7 @@ jobs:
 
       - name: Update Argo CD Application Image
         env:
-          ARGOCD_SERVER: localhost
+          ARGOCD_SERVER: ${{ secrets.ARGOCD_URL }}
         run: |
           argocd app set post --image post:latest
           argocd app sync post --server $ARGOCD_SERVER
