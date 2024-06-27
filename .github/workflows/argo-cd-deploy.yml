@@ -19,9 +19,6 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
-      - name: Install jq
-        run: sudo apt-get install -y jq
-
       - name: Log in to Harbor
         run: echo "${{ secrets.HARBOR_PASSWORD }}" | docker login ${{ secrets.HARBOR_URL }} -u ${{ secrets.HARBOR_USERNAME }} --password-stdin
 
@@ -42,31 +39,22 @@ jobs:
             echo "::set-output name=repository::post/dev"
           fi
 
-      - name: Get latest tag
-        id: get_latest_tag
-        run: |
-          repository=${{ steps.config.outputs.repository }}
-          latest_tag=$(curl -s -u "${{ secrets.HARBOR_USERNAME }}:${{ secrets.HARBOR_PASSWORD }}" "${{ secrets.HARBOR_URL }}/v2/${repository}/tags/list" | jq -r '.tags | map(select(test("^[0-9]+\\.[0-9]+$"))) | sort_by(.[0]) | .[-1]')
-          if [ "$latest_tag" == "null" ] || [ -z "$latest_tag" ]; then
-            latest_tag="0.00"
-          fi
-          echo "Latest tag: $latest_tag"
-          echo "::set-output name=latest_tag::$latest_tag"
-
       - name: Determine new tag
         id: new_tag
         run: |
-          latest_tag=${{ steps.get_latest_tag.outputs.latest_tag }}
+          repository=${{ steps.config.outputs.repository }}
+          latest_tag=$(curl -s -u "${{ secrets.HARBOR_USERNAME }}:${{ secrets.HARBOR_PASSWORD }}" "${{ secrets.HARBOR_URL }}/v2/${repository}/tags/list" | grep -oP '"\d+\.\d+"' | sort -V | tail -n 1 | tr -d '"')
+          if [ $? -ne 0 ] || [ -z "$latest_tag" ]; then
+            latest_tag="0.01"
+          fi
           if [ -n "${{ github.event.inputs.tag }}" ]; then
             new_tag=${{ github.event.inputs.tag }}
-          elif [ -z "$latest_tag" ]; then
-            new_tag="0.01"
           else
             IFS='.' read -r major minor <<< "$latest_tag"
             new_minor=$((minor + 1))
             new_tag="$major.$new_minor"
           fi
-          echo "event: ${{ github.event.inputs.tag }}"
+          echo "Latest tag: $latest_tag"
           echo "New tag: $new_tag"
           echo "::set-output name=new_tag::$new_tag"
 
