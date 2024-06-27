@@ -3,9 +3,11 @@ kind: Service
 metadata:
   name: post
 spec:
+  type: NodePort
   selector:
     app: post
   ports:
     - protocol: TCP
       port: 3000
-      targetPort: 80
+      targetPort: 3000
+      nodePort: 32000  # NodePort를 지정합니다.

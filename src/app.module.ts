@@ -46,7 +46,7 @@ import { BatchModule } from './api/batch/batch.module';
     BatchModule,
   ],
   controllers: [AppController],
-  providers: [AppService, S3Service, EmailService, BatchService],
+  providers: [AppService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): any {

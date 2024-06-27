@@ -14,9 +14,10 @@ spec:
     spec:
       containers:
         - name: post
-          image: my-post:latest  # 여기서 "my-app:latest"는 빌드된 Docker 이미지 이름입니다.
+          image: post:latest  # 여기서 "post:latest"는 빌드된 Docker 이미지 이름입니다.
+          imagePullPolicy: Never  # 이미지를 풀링하지 않도록 설정
           ports:
-            - containerPort: 80
+            - containerPort: 3000
           env:
             - name: ENVIRONMENT
               value: "development"

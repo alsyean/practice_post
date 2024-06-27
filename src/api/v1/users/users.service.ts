@@ -29,7 +29,6 @@ export class UsersService {
     body.password = await bcrypt.hash(password, 10);
     const users = this.userRepository.create(body);
     const user = await this.userRepository.save(users);
-
     return users;
   }
 
