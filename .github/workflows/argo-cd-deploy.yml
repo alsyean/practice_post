@@ -47,7 +47,7 @@ jobs:
           if [ $? -ne 0 ] || [ -z "$latest_tag" ]; then
             latest_tag="0.01"
           fi
-          if [ -n "${{ github.event.inputs.tag }}" ]; then
+          elif [ -n "${{ github.event.inputs.tag }}" ]; then
             new_tag=${{ github.event.inputs.tag }}
           else
             IFS='.' read -r major minor <<< "$latest_tag"
@@ -64,7 +64,7 @@ jobs:
           repository=${{ steps.config.outputs.repository }}
           TAG=${repository}:${new_tag}
           IMAGE_NAME="${{ secrets.HARBOR_URL }}/${repository}:${new_tag}"
-          docker build -t TAG -f ./${{ steps.config.outputs.dockerfile }} .
+          docker build -t $TAG -f ./${{ steps.config.outputs.dockerfile }} .
           docker push $IMAGE_NAME
 
 
