@@ -79,8 +79,9 @@ jobs:
           IMAGE_NAME="${HARBOR_URL_NO_PROTOCOL}/${repository}:${new_tag}"
           echo "Building and pushing image: $IMAGE_NAME"
           docker build -t $IMAGE_NAME -f ./${{ steps.config.outputs.dockerfile }} .
-#          docker push $IMAGE_NAME
           docker buildx build --cache-from=type=local,src=/tmp/.buildx-cache --cache-to=type=local,dest=/tmp/.buildx-cache --tag $IMAGE_NAME -f ./${{ steps.config.outputs.dockerfile }} --push .
+#          docker push $IMAGE_NAME
+
 
 
 
