@@ -19,23 +19,58 @@ jobs:
       - name: Log in to Harbor
         run: echo "${{ secrets.HARBOR_PASSWORD }}" | docker login ${{ secrets.HARBOR_URL }} -u ${{ secrets.HARBOR_USERNAME }} --password-stdin
 
-      - name: Set Dockerfile
+      - name: Determine Dockerfile
         id: dockerfile
         run: |
-          if [[ ${{ github.ref }} == 'refs/heads/master' ]]; then
+          if [ "${{ github.ref }}" == "refs/heads/prd" ]; then
+            echo "::set-output name=dockerfile::Dockerfile.prd"
+            echo "::set-output name=image_name::post"
+            echo "::set-output name=repositories::post"
+          elif [ "${{ github.ref }}" == "refs/heads/development" ]; then
             echo "::set-output name=dockerfile::Dockerfile.dev"
-          elif [[ ${{ github.ref }} == 'refs/heads/development' ]]; then
-            echo "::set-output name=dockerfile::Dockerfile.dev"
-          elif [[ ${{ github.ref }} == 'refs/heads/stage' ]]; then
+            echo "::set-output name=image_name::post"
+          echo "::set-output name=repositories::post-dev"
+          elif [ "${{ github.ref }}" == "refs/heads/stage" ]; then
             echo "::set-output name=dockerfile::Dockerfile.stg"
+            echo "::set-output name=image_name::post"
+          echo "::set-output name=repositories::post-stg"
           else
-            echo "::set-output name=dockerfile::Dockerfile.dev"  # 기본값으로 설정
+            echo "::set-output name=dockerfile::Dockerfile.dev"
+            echo "::set-output name=image_name::post"
+            echo "::set-output name=repositories::post-dev"
           fi
 
-      - name: Build and Push Docker image
+      - name: Get latest tag
+        id: get_latest_tag
         run: |
-          docker build -t ${{ secrets.HARBOR_URL }}/post:latest -f ./${{ steps.dockerfile.outputs.dockerfile }} .
-          docker push ${{ secrets.HARBOR_URL }}/post:latest
+          image_name=${{ steps.dockerfile.outputs.image_name }}
+          latest_tag=$(curl -s -u "${{ secrets.HARBOR_USERNAME }}:${{ secrets.HARBOR_PASSWORD }}" "${{ secrets.HARBOR_URL }}/v2/${image_name}/tags/list" | jq -r '.tags | map(select(test("^[0-9]+\\.[0-9]+$"))) | sort_by(.[0]) | .[-1]')
+          echo "Latest tag: $latest_tag"
+          echo "::set-output name=latest_tag::$latest_tag"
+
+      - name: Determine new tag
+        id: new_tag
+        run: |
+          latest_tag=${{ steps.get_latest_tag.outputs.latest_tag }}
+          if [ -n "${{ github.event.inputs.tag }}" ]; then
+            new_tag=${{ github.event.inputs.tag }}
+          elif [ -z "$latest_tag" ]; then
+            new_tag="0.01"
+          else
+            IFS='.' read -r major minor <<< "$latest_tag"
+            new_minor=$((minor + 1))
+            new_tag="$major.$new_minor"
+          fi
+          echo "New tag: $new_tag"
+          echo "::set-output name=new_tag::$new_tag"
+
+      - name: Build and push Docker image
+        run: |
+          new_tag=${{ steps.new_tag.outputs.new_tag }}
+          image_name=${{ steps.dockerfile.outputs.image_name }}
+          IMAGE_NAME="${image_name}/${repositories}:${new_tag}"
+          docker build -t $IMAGE_NAME -f ./${{ steps.dockerfile.outputs.dockerfile }} .
+          docker push ${{ secrets.HARBOR_URL }}/$IMAGE_NAME
 
 
   deploy:
