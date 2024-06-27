@@ -44,6 +44,9 @@ jobs:
         run: |
           repository=${{ steps.config.outputs.repository }}
           latest_tag=$(curl -s -u "${{ secrets.HARBOR_USERNAME }}:${{ secrets.HARBOR_PASSWORD }}" "${{ secrets.HARBOR_URL }}/v2/${repository}/tags/list" | jq -r '.tags | map(select(test("^[0-9]+\\.[0-9]+$"))) | sort_by(.[0]) | .[-1]')
+          if [ "$latest_tag" == "null" ] || [ -z "$latest_tag" ]; then
+            latest_tag="0.00"
+          fi
           echo "Latest tag: $latest_tag"
           echo "::set-output name=latest_tag::$latest_tag"
 
@@ -60,6 +63,7 @@ jobs:
             new_minor=$((minor + 1))
             new_tag="$major.$new_minor"
           fi
+          echo "event: ${{ github.event.inputs.tag }}"
           echo "New tag: $new_tag"
           echo "::set-output name=new_tag::$new_tag"
 
