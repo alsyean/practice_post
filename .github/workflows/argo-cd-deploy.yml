@@ -62,7 +62,8 @@ jobs:
         run: |
           new_tag=${{ steps.new_tag.outputs.new_tag }}
           repository=${{ steps.config.outputs.repository }}
-          IMAGE_NAME="${{ secrets.HARBOR_URL }}/${repository}:${new_tag}"
+          IMAGE_NAME="${{ secrets.HARBOR_URL }}/post/${repository}:${new_tag}"
+          echo "Building and pushing image: $IMAGE_NAME"
           docker build -t $IMAGE_NAME -f ./${{ steps.config.outputs.dockerfile }} .
           docker push $IMAGE_NAME
 
