@@ -46,7 +46,6 @@ jobs:
           latest_tag=$(curl -s -u "${{ secrets.HARBOR_USERNAME }}:${{ secrets.HARBOR_PASSWORD }}" "${{ secrets.HARBOR_URL }}/v2/${repository}/tags/list" | grep -oP '"\d+\.\d+"' | sort -V | tail -n 1 | tr -d '"')
           if [ $? -ne 0 ] || [ -z "$latest_tag" ]; then
             latest_tag="0.01"
-          fi
           elif [ -n "${{ github.event.inputs.tag }}" ]; then
             new_tag=${{ github.event.inputs.tag }}
           else
